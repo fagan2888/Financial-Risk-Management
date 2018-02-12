@@ -40,42 +40,30 @@ def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
 
 #get Fama French 3 factor data from French's website
 def getFamaFrench3():
-    FFurl='http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip'
-    r = requests.get(FFurl, allow_redirects=True)
-    #Store FF zip file in a temp file
-    tmp = tempfile.NamedTemporaryFile(delete=True)
-    tmp.write(r.content)
-    zf=zipfile.ZipFile(tmp)
-    for FFfile in zf.namelist():
-        FFdata = zf.read(FFfile)
-    tmp.close()  # deletes the temp file
+    url='http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip'
+
+    #Read just the first line of the FF file into a dataframe
+    df_monthly = pd.read_csv(url, header=None, nrows=1)
+    #Put the line into a string
+    str=df_monthly.iloc[0,0]
+    #8th word in the string is the last date in the file in YYYYMM format
+    lastyear=int(str.split()[8][:4])
+    lastmonth=int(str.split()[8][4:])
+    #first date in the file is June 1926 - figure out
+    #number of months based on that
+    periods=(lastyear-1926)*12+(lastmonth-6)    
     
-    #Split up the Fama-French data (after header) into words
-    words=repr(FFdata[162:]).split()
+    #Now we know how many periods to read - skip the header and read those monthly periods
+    names_monthly = ["yearmon", "mkt_minus_rf", "SMB", "HML", "RF"]
+    df_monthly = pd.read_csv(url, skiprows=4, nrows=periods, names=names_monthly)
     
-    #Parse the Fama-French data
-    #dates (YYYYMM format),Mkt-RF,SMB,HML,RF
-    Date=[]
-    market_minus_rf=[]
-    SMB=[]
-    HML=[]
-    RF=[]
-    Date.append(float(words[0][2:8])/100.0)   #Extract first YYYYMM date
-    x=1
-    while True:
-        market_minus_rf.append(float(words[x][0:len(words[x])-1])) 
-        SMB.append(float(words[x+1][0:len(words[x+1])-1]))
-        HML.append(float(words[x+2][0:len(words[x+2])-1]))
-        l3=len(words[x+3])
-        try:  #Next period date; this period RF
-            NxtDate=int(words[x+3][l3-7:l3-1])  #Generate error if done
-            Date.append(float(NxtDate)/100.0)
-            RF.append(float(words[x+3][:l3-11]))
-            x+=4
-        except ValueError: #Last data line; remove returns and newlines
-            RF.append(float(words[x+3][:l3-8]))
-            break
-    #Return the output lists
+    #Transfer from data frame to output arrays
+    Date=df_monthly["yearmon"]
+    market_minus_rf=df_monthly["mkt_minus_rf"]
+    SMB=df_monthly["SMB"]
+    HML=df_monthly["HML"]
+    RF=df_monthly["RF"]
+    
     return(Date,market_minus_rf,SMB,HML,RF)
 #Done with getFamaFrench3
 
