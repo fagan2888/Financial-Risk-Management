@@ -21,11 +21,10 @@ def GenSampleSd(LogReturns,lookbacks):
 #Plot a graph of sample standard deviations
 def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
     fig, ax = plt.subplots()
-    x=0
-    for lb in lookbacks:
-        ax.plot(Date[lb+StubOffset:], \
-        SampleSd[x][StubOffset:], colors[x], \
-        label=str(lb)+' month')
+    for i, lb in enumerate(lookbacks):
+        ax.plot(Date[lb+StubOffset:],
+                SampleSd[i][StubOffset:], colors[i],
+                label=str(lb)+' month')
     for label in ax.xaxis.get_ticklabels():
         label.set_rotation(45)
     legend = ax.legend(loc='upper right', shadow=False, fontsize='medium')
