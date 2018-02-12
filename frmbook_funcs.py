@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 #Function library for Financial Risk Management book
 
-import numpy
-import random
-import matplotlib.pyplot as plt
-
 #Generate sample standard deviations over lookback periods
 def GenSampleSd(LogReturns,lookbacks):
+    import numpy
+    
     Sqrt12=12.0**0.5
     SampleSd=[]
     for lb in lookbacks:
@@ -20,6 +18,8 @@ def GenSampleSd(LogReturns,lookbacks):
 
 #Plot a graph of sample standard deviations
 def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
+    import matplotlib.pyplot as plt
+    
     fig, ax = plt.subplots()
     for i, lb in enumerate(lookbacks):
         ax.plot(Date[lb+StubOffset:],
@@ -40,6 +40,8 @@ def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
 
 #get Fama French 3 factor data from French's website
 def getFamaFrench3():
+    import pandas as pd
+    
     url='http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip'
 
     #Read just the first line of the FF file into a dataframe
@@ -70,6 +72,8 @@ def getFamaFrench3():
 #Change returns in format 5.0=5% to log-returns log(1.05)
 #Also add back a risk-free rate
 def LogReturnConvert(Ret100,RF):
+    import math
+    
     LogReturns=[]
     for x in range(len(Ret100)):
         LogReturns.append(100.0*math.log(1+\
