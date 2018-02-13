@@ -1,32 +1,22 @@
-import random
-import frmbook_funcs
+#Generate virtual reality for graph of standard deviations
 
-#Generate virtual reality
-#Hardcoded: 91.5 years, annual standard deviation 18.49%
-Sqrt12=12**0.5
-targetsd=18.49/Sqrt12
-NMonths=91*12+6           #Number of months of virtual reality
+#First get actual reality
+Date,market_minus_rf,SMB,HML,RF=frmbook_funcs.getFamaFrench3()
+ActualReality=frmbook_funcs.LogReturnConvert(market_minus_rf,RF)
+
+#Compute overall monthly standard deviation
+targetsd=numpy.std(ActualReality)
+
+#Generate virtual reality with random normal draws with targetsd
 VirtualReality=[]
 random.seed(3.14159265)
-for x in range(NMonths):
+for x in range(len(ActualReality)):
     VirtualReality.append(random.gauss(0,targetsd))
 
-#VirtualReality now contains Nmonths sample
-#of normal variates mean 0 stddev targetsd
-
-#Generate date array
-Date=[]
-Year,Month=1926,7
-for x in range(NMonths):
-    Date.append(float(Year+Month/100.0))
-    Month+=1
-    if (Month==13):
-        Year+=1
-        Month=1
-
+#Generate sample standard deviations for 3 lookback periodicities
 lookbacks=[12,36,60]
 SampleSd=frmbook_funcs.GenSampleSd(VirtualReality,lookbacks)
-StubOffset=6
+
+#Draw the graph with 3 lines for the 3 periodicities
 colors=['y-','b-','r-']
-frmbook_funcs.PlotSampleSd('Figure 1',Date,SampleSd,StubOffset,\
-lookbacks,colors)
+frmbook_funcs.PlotSampleSd('Figure 1',Date,SampleSd,lookbacks,colors)
