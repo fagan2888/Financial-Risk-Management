@@ -17,13 +17,12 @@ def GenSampleSd(LogReturns,lookbacks):
 #Done with GetSampleSd
 
 #Plot a graph of sample standard deviations
-def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
+def PlotSampleSd(Title,Date,SampleSd,lookbacks,colors):
     import matplotlib.pyplot as plt
     
     fig, ax = plt.subplots()
     for i, lb in enumerate(lookbacks):
-        ax.plot(Date[lb+StubOffset:],
-                SampleSd[i][StubOffset:], colors[i],
+        ax.plot(Date[lb:], SampleSd[i], colors[i],\
                 label=str(lb)+' month')
     for label in ax.xaxis.get_ticklabels():
         label.set_rotation(45)
@@ -42,10 +41,10 @@ def PlotSampleSd(Title,Date,SampleSd,StubOffset,lookbacks,colors):
 def getFamaFrench3():
     import pandas as pd
     
-    url='http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip'
+    ffurl='http://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_CSV.zip'
 
     #Read just the first line of the FF file into a dataframe
-    df_monthly = pd.read_csv(url, header=None, nrows=1)
+    df_monthly = pd.read_csv(ffurl, header=None, nrows=1)
     #Put the line into a string
     str=df_monthly.iloc[0,0]
     #8th word in the string is the last date in the file in YYYYMM format
@@ -57,7 +56,7 @@ def getFamaFrench3():
     
     #Now we know how many periods to read - skip the header and read those monthly periods
     names_monthly = ["yearmon", "mkt_minus_rf", "SMB", "HML", "RF"]
-    df_monthly = pd.read_csv(url, skiprows=4, nrows=periods, names=names_monthly)
+    df_monthly = pd.read_csv(ffurl, skiprows=4, nrows=periods, names=names_monthly)
     
     #Transfer from data frame to output arrays
     Date=df_monthly["yearmon"]
