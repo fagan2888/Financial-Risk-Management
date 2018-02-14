@@ -1,6 +1,7 @@
 import numpy
 import frmbook_funcs
 
+#Get Fama-French market data. Convert to log-returns
 Date,market_minus_rf,SMB,HML,RF=frmbook_funcs.getFamaFrench3()
 ActualReality=frmbook_funcs.LogReturnConvert(market_minus_rf,RF)
 
