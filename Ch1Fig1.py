@@ -2,8 +2,10 @@ def CertaintyEquiv(w,p):
     #Certainty equivalent price to pay when current
     #wealth is w for a gamble that pays 1 with probability
     #p and 0 otherwise, log-utility
-    if (w<=0) or (p<0) or (p>1):
+    if (w<=0) or (p<0) or (p>1): #Can't bet anything
         return(0)
+    if (p==1): #Bet it all
+        return(1)
     tolerance=10**(-10); diff=1/tolerance; c=p
     if w <= p:
         c=w/2
