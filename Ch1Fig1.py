@@ -4,14 +4,14 @@ def CertaintyEquiv(w,p):
     #p and 0 otherwise, log-utility
     if (w<=0) or (p<0) or (p>1): #Can't bet anything
         return(0)
-    if (p==1): #Bet it all
-        return(1)
+    if (p==1):              #Sure thing but can't borrow
+        return(min(1,w))    #so only bet what you have up to max
     tolerance=10**(-10); diff=1/tolerance; c=p
     if w <= p:
         c=w/2
     while abs(diff) > tolerance:
-        if w <= c:   #Don't have enough wealth to bet
-            return(0)
+        if w <= c:   #Don't have enough wealth to bet fully
+            return(w)
         c2 = w*(1-(1+1/(w-c))**(-p))
         diff = c2-c
         c=c2
