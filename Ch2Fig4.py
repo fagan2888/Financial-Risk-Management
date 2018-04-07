@@ -14,8 +14,8 @@ plt.plot(tenors, curve2012, label='2012')
 plt.plot(tenors, curve2017, label='2017')
 ## Configure the graph
 plt.title('US Treasury Curves')
-plt.xlabel('Rate')
-plt.ylabel('Tenor')
+plt.xlabel('Tenor')
+plt.ylabel('Rate')
 plt.legend()
 plt.grid(True)
 plt.annotate('Upward sloping', xy=(25, 2.5), xytext=(21.25, 0),
