@@ -21,7 +21,7 @@ for i,rate in enumerate(curve):
         denom=tenors[i]-tenors[i-1]
         numer=curve[i]-curve[i-1]
         if (denom!=0):
-            short+=numer/denom
+            short+=tenors[i-1]*numer/denom
     shortrates.append(short)
 
 plt.plot(tenornumbers, shortrates, label='Short')
