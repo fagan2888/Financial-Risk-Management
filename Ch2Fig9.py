@@ -1,49 +1,22 @@
 import matplotlib.pyplot as plt
 import random
-tenorsfromtsy=[0.083333333,0.25,0.5,1,2,3,5,7,10,20,30]
-#Curve source:
-#https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield
-curve2017=[1.28,1.39,1.53,1.76,1.89,1.98,
-           2.2,2.33,2.4,2.58,2.74]
-#Interpolate curve monthly
+import pandas as pd
+#PLot an original (year-end Treasury) curve;
+#a short-rate curve based on that;
+#a Hull-White randomly generated short-rate curve;
+#and a yield curve integrating the Hull-White short curve
+#Use GetUSCurve function in frmbook functions to get Treasury curve
+tenorsfromtsy,seriesnames,cdates,ratematrix=GetUSCurve()
+#find end of last year
+t=pd.Timestamp.now()
+for day in [31,30,29,28]:
+    lastday=str(t.year-1)+'-12-'+str(day)
+    if lastday in cdates:
+       break
 
-curve=curve2017
-curve360=[]
-tenors=[]
-shortrates=[]
-idxtsy=0
-mnthtsy=round(tenorsfromtsy[idxtsy]*12)
-#Fill in curve360 every month between the knot points
-#given in curve
-#As curve is filled in, bootstrap a short rate curve
-for month in range(360):
-    tenors.append(float(month+1)/12)
-    if (month+1==mnthtsy):   #Are we at a knot point?
-        #Copy over original curve at this point
-        curve360.append(curve[idxtsy])
-        #Move indicator to next knot point
-        idxtsy+=1
-        if (idxtsy!=len(tenorsfromtsy)):
-            #Set month number of next knot point
-            mnthtsy=round(tenorsfromtsy[idxtsy]*12)
-    else:   #Not at a knot point - interpolate
-        timespread=tenorsfromtsy[idxtsy]-tenorsfromtsy[idxtsy-1]
-        ratespread=curve[idxtsy]-curve[idxtsy-1]
-        if (timespread<=0):
-            curve360.append(curve[idxtsy-1])
-        else:
-            #compute years between previous knot point and now
-            time_to_previous_knot=(month+1)/12-tenorsfromtsy[idxtsy-1]
-            proportion=(ratespread/timespread)*time_to_previous_knot
-            curve360.append(curve[idxtsy-1]+proportion)
-    #Bootstrap a short rate curve
-    short=curve360[month]    
-    if (month!=0):
-        denom=tenors[month]-tenors[month-1]
-        numer=curve360[month]-curve360[month-1]
-        if (denom!=0):
-            short+=tenors[month]*numer/denom
-    shortrates.append(short)
+#Get monhtly interpolated curve and short rate curve
+curvefromtsy=ratematrix[cdates.index(lastday)]
+tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,curvefromtsy)
 
 random.seed(3.14159265)
 #set parameters for Ornstein-Uhlenbeck process
@@ -70,8 +43,8 @@ for i,rate in enumerate(shortrates):
         curvesample.append(cs)
         
 #Plot the four curves      
-plt.plot(tenors, curve360, label='Original UST Curve')
-plt.plot(tenors, shortrates, label='Original Short Curve')
+plt.plot(tenors, curvemonthly, label='UST Curve YE '+str(t.year-1))
+plt.plot(tenors, shortrates, label='Short Curve YE '+str(t.year-1))
 plt.plot(tenors, randomwalk, label='Sample Short Curve')
 plt.plot(tenors, curvesample, label='Sample UST Curve')
 ## Configure the graph
