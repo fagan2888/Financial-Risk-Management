@@ -11,45 +11,9 @@ for day in [31,30,29,28]:
     if lastday in cdates:
        break
 
-curve=ratematrix[cdates.index(lastday)]
-
-#Interpolate curve monthly
-#As curve is filled in, bootstrap a short rate curve
-curve360=[]
-tenors=[]
-shortrates=[]
-idxtsy=0
-mnthtsy=round(tenorsfromtsy[idxtsy]*12)
-#Fill in curve360 every month between the knot points
-#given in curve
-for month in range(360):
-    tenors.append(float(month+1)/12)
-    if (month+1==mnthtsy):   #Are we at a knot point?
-        #Copy over original curve at this point
-        curve360.append(curve[idxtsy])
-        #Move indicator to next knot point
-        idxtsy+=1
-        if (idxtsy!=len(tenorsfromtsy)):
-            #Set month number of next knot point
-            mnthtsy=round(tenorsfromtsy[idxtsy]*12)
-    else:   #Not at a knot point - interpolate
-        timespread=tenorsfromtsy[idxtsy]-tenorsfromtsy[idxtsy-1]
-        ratespread=curve[idxtsy]-curve[idxtsy-1]
-        if (timespread<=0):
-            curve360.append(curve[idxtsy-1])
-        else:
-            #compute years between previous knot point and now
-            time_to_previous_knot=(month+1)/12-tenorsfromtsy[idxtsy-1]
-            proportion=(ratespread/timespread)*time_to_previous_knot
-            curve360.append(curve[idxtsy-1]+proportion)
-    #Bootstrap a short rate curve
-    short=curve360[month]    
-    if (month!=0):
-        denom=tenors[month]-tenors[month-1]
-        numer=curve360[month]-curve360[month-1]
-        if (denom!=0):
-            short+=tenors[month]*numer/denom
-    shortrates.append(short)
+#Get monhtly interpolated curve and short rate curve
+curvefromtsy=ratematrix[cdates.index(lastday)]
+tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,curvefromtsy)
 
 #do one graph with sigma=.05 and another
 #with sigma=.2
