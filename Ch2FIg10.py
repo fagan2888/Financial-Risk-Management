@@ -1,13 +1,20 @@
 import matplotlib.pyplot as plt
 import random
-tenorsfromtsy=[0.083333333,0.25,0.5,1,2,3,5,7,10,20,30]
-#Curve source:
-#https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield
-curve2017=[1.28,1.39,1.53,1.76,1.89,1.98,
-           2.2,2.33,2.4,2.58,2.74]
-#Interpolate curve monthly
+import pandas as pd
+#PLot 10 Hull-White paths based on yearend US Treasury curve
+#Use GetUSCurve function in frmbook functions to get Treasury curve
+tenorsfromtsy,seriesnames,cdates,ratematrix=GetUSCurve()
+#find end of last year
+t=pd.Timestamp.now()
+for day in [31,30,29,28]:
+    lastday=str(t.year-1)+'-12-'+str(day)
+    if lastday in cdates:
+       break
 
-curve=curve2017
+curve=ratematrix[cdates.index(lastday)]
+
+#Interpolate curve monthly
+#As curve is filled in, bootstrap a short rate curve
 curve360=[]
 tenors=[]
 shortrates=[]
@@ -15,7 +22,6 @@ idxtsy=0
 mnthtsy=round(tenorsfromtsy[idxtsy]*12)
 #Fill in curve360 every month between the knot points
 #given in curve
-#As curve is filled in, bootstrap a short rate curve
 for month in range(360):
     tenors.append(float(month+1)/12)
     if (month+1==mnthtsy):   #Are we at a knot point?
