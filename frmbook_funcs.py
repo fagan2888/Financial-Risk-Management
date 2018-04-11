@@ -127,3 +127,53 @@ def GetUSCurve(startdate=None,enddate=None):
         ratematrix.append(x)
     return(tenors,seriesnames,cdates,ratematrix)
 #Done with GetUSCurve
+
+def InterpolateCurve(tenors_in,curve_in):
+    #Interpolate curve monthly and return a short
+    #rate curve based on the interpolated curve
+    #tenors_in has the tenors at the knot points (in years)
+    #curve_in has the rate values at the knot point
+    #tenors_out has the monthly tenors
+    #curve_out has the rates associated with tenors_out
+    #shortrates has the bootstrapped short rates
+    
+    curve_out=[]
+    tenors_out=[]
+    shortrates=[]
+    idxin=0
+    mnthin=round(tenors_in[idxin]*12)
+    months=round(tenors_in[len(tenors_in)-1]*12)
+    #Fill in curve_out every month between the knot
+    #points given in curve
+    #As curve is filled in, bootstrap a short rate curve
+    for month in range(months):
+        tenors_out.append(float(month+1)/12)
+        if (month+1==mnthin):   #Are we at a knot point?
+            #Copy over original curve at this point
+            curve_out.append(curve_in[idxin])
+            #Move indicator to next knot point
+            idxin+=1
+            if (idxin!=len(tenors_in)):
+                #Set month number of next knot point
+                mnthin=round(tenors_in[idxin]*12)
+        else:   #Not at a knot point - interpolate
+            timespread=tenors_in[idxin]-tenors_in[idxin-1]
+            ratespread=curve_in[idxin]-curve_in[idxin-1]
+            if (timespread<=0):
+                curve_out.append(curve_in[idxin-1])
+            else:
+                #compute years between previous knot point and now
+                time_to_previous_knot=(month+1)/12-tenors_in[idxin-1]
+                proportion=(ratespread/timespread)*time_to_previous_knot
+                curve_out.append(curve_in[idxin-1]+proportion)
+        #Bootstrap a short rate curve
+        short=curve_out[month]    
+        if (month!=0):
+            denom=tenors_out[month]-tenors_out[month-1]
+            numer=curve_out[month]-curve_out[month-1]
+            if (denom!=0):
+                short+=tenors_out[month]*numer/denom
+        shortrates.append(short)
+        
+    return(tenors_out,curve_out,shortrates)
+#Done with InterpolateCurve
