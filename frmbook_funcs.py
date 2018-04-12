@@ -132,7 +132,7 @@ def formula2p9(c,r,t):
         ytttterm+=2
         ytttterm*=c*(y/(1-y))**3
     convexity+=ytttterm
-    #formula2p3 is in Ch2Fig1.py
+    #formula2p3 is in frmbook_funcs.py
     price=formula2p3(c,r,t)   #Rescale by price
     convexity/=price
     return(convexity)
