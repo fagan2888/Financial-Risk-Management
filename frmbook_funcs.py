@@ -36,7 +36,6 @@ def PlotSampleSd(Title,Date,SampleSd,lookbacks,colors):
     return
 #Done with PlotSampleSd
 
-
 #get Fama French 3 factor data from French's website
 def getFamaFrench3():
     import pandas as pd
@@ -95,6 +94,26 @@ def formula2p3(c,r,t):
     price+=geometric*c*y
     return(price)
 #Done with Formula2p3
+
+def formula2p8(c,r,t):
+    #Formula 2.8 for Macauley duration of bond
+    #with annual coupon c, t years to
+    #maturity, discount rate r
+    if r<=-100:  #Unreasonable discount rate
+        return(0)
+    y=1/(1+r/100)
+    ytothet=y**t
+    duration=100*t*ytothet
+    if (y==1):   #no discount rate
+        multiplier=t*(t+1)/2
+    else:
+        multiplier=(1-ytothet-t*(1-y)*ytothet)/(1-y)**2
+    duration+=multiplier*c*y
+    #formula2p3 is in frmbook_funcs.py
+    price=formula2p3(c,r,t)   #Rescale by price
+    duration/=price
+    return(duration)
+#Done with Formula2p8
 
 def GetUSCurve(startdate=None,enddate=None):
     #Get US Treasury constant maturity curve from FRED
