@@ -1,36 +1,14 @@
-def formula2p9(c,r,t):
-    #Formula 2.9 for convexity of bond
-    #with annual coupon c, t years to
-    #maturity, discount rate r
-    if r<=-100:  #Unreasonable discount rate
-        return(0)
-    y=1/(1+r/100)
-    ytothet=y**t
-    convexity=100*t*(t+1)*ytothet*(y**2)
-    if (y==1):   #no discount rate
-        ytttterm=0
-    else:
-        ytttterm=-(t+1)*(t+2)+2*t*(t+2)*y-t*(t+1)*y**2
-        ytttterm*=ytothet
-        ytttterm+=2
-        ytttterm*=c*(y/(1-y))**3
-    convexity+=ytttterm
-    #formula2p3 is in Ch2Fig1.py
-    price=formula2p3(c,r,t)   #Rescale by price
-    convexity/=price
-    return(convexity)
-#Done with Formula2p9
-    
 import matplotlib.pyplot as plt                                                 
 import numpy as np
-
-## Create functions and set domain length
+#Show a graph of true price of a 7% coupon, 30-year bond
+#at different discount rates; compare with duration
+#approximation and duration+convexity approximation
 x = np.arange(0, 14.25, .25)
 years=30
 baserate=7
-#formula2p3 is in Ch2Fig1.py
+#formula2p3 is in frmbook_funcs
 baseprice=formula2p3(baserate,baserate,years)
-#formula2p8 is in Ch2Fig2.py
+#formula2p8 is in frmbook_funcs
 basedur=formula2p8(baserate,baserate,years)
 basecvx=formula2p9(baserate,baserate,years)
 y, y1, y2=[], [], []
