@@ -80,6 +80,22 @@ def LogReturnConvert(Ret100,RF):
     return(LogReturns)
 #Done with LogReturnConvert
 
+def formula2p3(c,r,t):
+    #Formula 2.3 for price of bond
+    #with annual coupon c, t years to
+    #maturity, discount rate r
+    if r<=-100:  #Unreasonable discount rate
+        return(100)
+    y=1/(1+r/100)
+    price=100*(y**t)
+    if (y==1):   #no discount rate
+        geometric=t
+    else:
+        geometric=(1-y**t)/(1-y)
+    price+=geometric*c*y
+    return(price)
+#Done with Formula2p3
+
 def GetUSCurve(startdate=None,enddate=None):
     #Get US Treasury constant maturity curve from FRED
     #See http://mortada.net/python-api-for-fred.html
