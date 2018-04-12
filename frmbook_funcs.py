@@ -115,6 +115,29 @@ def formula2p8(c,r,t):
     return(duration)
 #Done with Formula2p8
 
+def formula2p9(c,r,t):
+    #Formula 2.9 for convexity of bond
+    #with annual coupon c, t years to
+    #maturity, discount rate r
+    if r<=-100:  #Unreasonable discount rate
+        return(0)
+    y=1/(1+r/100)
+    ytothet=y**t
+    convexity=100*t*(t+1)*ytothet*(y**2)
+    if (y==1):   #no discount rate
+        ytttterm=0
+    else:
+        ytttterm=-(t+1)*(t+2)+2*t*(t+2)*y-t*(t+1)*y**2
+        ytttterm*=ytothet
+        ytttterm+=2
+        ytttterm*=c*(y/(1-y))**3
+    convexity+=ytttterm
+    #formula2p3 is in Ch2Fig1.py
+    price=formula2p3(c,r,t)   #Rescale by price
+    convexity/=price
+    return(convexity)
+#Done with Formula2p9
+
 def GetUSCurve(startdate=None,enddate=None):
     #Get US Treasury constant maturity curve from FRED
     #See http://mortada.net/python-api-for-fred.html
