@@ -18,6 +18,7 @@ seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
 #GetFREDMatrix is in frmbook_funcs
 cdates,ratematrix=GetFREDMatrix(seriesnames,startdate=lastday,enddate=lastday)
 
+#Extract numerical (yearly) tenors from series names
 tenorsfromtsy=[]
 for i in range(len(seriesnames)):
     if seriesnames[i][-2:]=='MO':
