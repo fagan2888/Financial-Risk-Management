@@ -1,21 +1,36 @@
 import matplotlib.pyplot as plt
+import pandas as pd
+#Plot the 2010, 2012, and most recent yearend
+#US Treasury curves
+seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
+             'DGS2','DGS3','DGS5','DGS7',
+             'DGS10','DGS20','DGS30']
+#GetFREDMatrix is in frmbook_funcs
+cdates,ratematrix=GetFREDMatrix(seriesnames)
+
+#find end of last year in the list of dates
+t=pd.Timestamp.now()
+for day in [31,30,29,28]:
+    lastday=str(t.year-1)+'-12-'+str(day)
+    if lastday in cdates:
+        break
+
+#Form the list of curve dates to display
+displaydates=['2010-12-31','2012-12-31']
+displaydates.append(lastday)
 tenors=[0.083333333,0.25,0.5,1,2,3,5,7,10,20,30]
-#Curve source:
-#https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield
-curve2010=[0.07,0.12,0.19,0.29,0.61,1.02,
-           2.01,2.71,3.3,4.13,4.34]
-curve2012=[0.02,0.05,0.11,0.16,0.25,0.36,
-           0.72,1.18,1.78,2.54,2.95]
-curve2017=[1.28,1.39,1.53,1.76,1.89,1.98,
-           2.2,2.33,2.4,2.58,2.74]
-                                             
-plt.plot(tenors, curve2010, label='2010')
-plt.plot(tenors, curve2012, label='2012')
-plt.plot(tenors, curve2017, label='2017')
+
+#Plot the three lines
+for i in range(3):
+    year=displaydates[i][:4]
+    plt.plot(tenors,
+        ratematrix[cdates.index(displaydates[i])],
+        label=year)
+
 ## Configure the graph
-plt.title('US Treasury Curves')
-plt.xlabel('Tenor')
-plt.ylabel('Rate')
+plt.title('US Yearend Treasury Curves')
+plt.xlabel('Tenor (years)')
+plt.ylabel('Rate (%/year)')
 plt.legend()
 plt.grid(True)
 plt.annotate('Upward sloping', xy=(25, 2.5), xytext=(21.25, 0),
