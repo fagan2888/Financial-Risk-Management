@@ -1,0 +1,54 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+#Compute principal components of Treasury curve
+#from 1989 to 1995 as in Table 2 in
+#https://pdfs.semanticscholar.org/c0ca/bab4aebf9d04e58a3084e4f35ea4d57045aa.pdf
+tenorsfromtsy,seriesnames,cdates,ratematrix=GetUSCurve()
+start=cdates.index('1989-01-02')
+finish=cdates.index('1996-12-31')
+#Some tenors have NaN's - figure out which have
+#full data while forming differences. Also clean
+#dates that have no data at all
+tenorgood=[True]*len(tenorsfromtsy)
+xold=ratematrix[start-1]
+ratedeltas=[]
+for i in range(start,finish+1):
+    dategood=(False in pd.isna(ratematrix[i]))
+    if (dategood):   #At least one item isn't NaN
+        x=ratematrix[i]
+        for j in range(len(tenorsfromtsy)):
+            x[j]-=xold[j]  #Will be NaN if one or the other is NaN
+            if pd.isna(x[j]):  #Is this tenor bad?
+                tenorgood[j]=False
+        ratedeltas.append(x)
+print(tenorgood)
+
+#Delete the tenors without full data
+for i in range(len(ratedeltas)):
+    x=ratedeltas[i]
+    y=[x[j] for j in range(len(tenorgood)) if tenorgood[j]]         
+    ratedeltas[i]=y
+
+#Drop the bad tenors from tenorsfromtsy
+x=[tenorsfromtsy[j] for j in range(len(tenorgood)) if tenorgood[j]]
+tenorsfromtsy=x
+
+#form the covariance matrix
+c=np.cov(np.array(ratedeltas).T)
+evals,evecs=np.linalg.eig(c)
+
+#Plot the first 3 eigenvectors
+for i in range(3):
+    labelstring="PC%d, " % (i+1)
+    labelstring+="%.2f" % (list(evals/sum(evals))[i]*100)
+    labelstring+="%"
+    plt.plot(range(len(tenorsfromtsy)), list(evecs.T[i]),
+         label=labelstring)
+## Configure the graph
+plt.title('First 3 principal components, 1989-1994')
+plt.xticks(range(len(tenorsfromtsy)),tenorsfromtsy)
+plt.xlabel('Tenor')
+plt.ylabel('Weight')
+plt.grid(True)
+plt.show
