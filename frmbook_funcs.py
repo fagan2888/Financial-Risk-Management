@@ -138,53 +138,50 @@ def formula2p9(c,r,t):
     return(convexity)
 #Done with Formula2p9
 
-def GetUSCurve(startdate=None,enddate=None):
-    #Get US Treasury constant maturity curve from FRED
+def GetFREDMatrix(seriesnames,progress=False,startdate=None,enddate=None):
+    #Get a matrix (rows=dates,columns=series) of data
+    #from FRED database
     #See http://mortada.net/python-api-for-fred.html
     #for information on how to get the FRED (Federal
     #Reserve of St. Louis database) API, and how to get
     #an API key. The key below is Ken Winston's.
+    #Inputs:
+    #    seriesnames - list of strings with desired series
+    #    progress - optional Boolean, print progress report if True
+    #    startdate, enddate - optional 'YYYY-MM-DD' dates
     #Returns:
-    #    tenors - list of tenors in years
-    #    seriesnames - list of FRED series names
     #    cdates - list of yyyy-mm-dd dates
     #    ratematrix - list of time series, one time
-    #                 series per tenor
+    #                 series per exchange rate
     import pandas as pd
     import numpy
     import fredapi
     fred = fredapi.Fred(api_key='fd97b1fdb076ff1a86aff9b38d7a0e70')
-    #Construct Fred series names
-    month=1./12.
-    tenors=[month,3*month,6*month,1,2,3,5,7,10,20,30]
-    seriesnames=['1MO','3MO','6MO','1','2','3','5','7','10','20','30']
-    for i,sn in enumerate(seriesnames):
-        seriesnames[i]='DGS'+sn
-    #Get the time series for each tenor
-    #Put them all together in a dataframe
+
+    #Get each time series and load it into a common dataframe
     initialize=True
     for sn in seriesnames:
-        print('Processing ',sn)
+        if progress: print('Processing ',sn)
         fs=fred.get_series(sn,observation_start=startdate, \
                            observation_end=enddate)
         fs=fs.rename(sn)   #put the name on the column
         if initialize:
             #Set up the dataframe with the first series
-            dfcurve=pd.DataFrame(fs)
+            df=pd.DataFrame(fs)
             initialize=False
         else:
             #concatenate the next series to the dataframe
-            dfcurve=pd.concat([dfcurve,fs],axis=1)
+            df=pd.concat([df,fs],axis=1)
     
     #The dataframe has aligned the dates
     #strip out date series
-    cdates=dfcurve.index.strftime('%Y-%m-%d').tolist()
+    cdates=df.index.strftime('%Y-%m-%d').tolist()
     ratematrix=[]
-    for i in range(len(dfcurve)):
-        x=list(dfcurve.iloc[i])
+    for i in range(len(df)):
+        x=list(df.iloc[i])
         ratematrix.append(x)
-    return(tenors,seriesnames,cdates,ratematrix)
-#Done with GetUSCurve
+    return(cdates,ratematrix)
+#Done with GetFREDMatrix
 
 def InterpolateCurve(tenors_in,curve_in):
     #Interpolate curve monthly and return a short
