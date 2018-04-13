@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-#Show the inverted Treasury curve from
-#2001-01-02
+#Show the inverted Treasury curve from 2001-01-02
 
 targetdate='2001-01-02'
 #Note no one-month rate on this date
@@ -10,8 +9,15 @@ seriesnames=['DGS3MO','DGS6MO','DGS1',
              'DGS10','DGS20','DGS30']
 #GetFREDMatrix is in frmbook_funcs
 cdates,ratematrix=GetFREDMatrix(seriesnames,startdate=targetdate,enddate=targetdate)
+rtdate=lastday,enddate=lastday)
 
-tenors=[0.25,0.5,1,2,3,5,7,10,20,30]
+#Extract numerical (yearly) tenors from series names
+tenors=[]
+for i in range(len(seriesnames)):
+    if seriesnames[i][-2:]=='MO':
+        tenors.append(float(seriesnames[i][3:-2])/12)
+    else:
+        tenors.append(float(seriesnames[i][3:]))
 
 plt.plot(tenors, ratematrix[0])
 ## Configure the graph
