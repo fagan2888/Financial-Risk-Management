@@ -5,18 +5,30 @@ import pandas as pd
 #a short-rate curve based on that;
 #a Hull-White randomly generated short-rate curve;
 #and a yield curve integrating the Hull-White short curve
-#Use GetUSCurve function in frmbook functions to get Treasury curve
-tenorsfromtsy,seriesnames,cdates,ratematrix=GetUSCurve()
+
 #find end of last year
 t=pd.Timestamp.now()
 for day in [31,30,29,28]:
     lastday=str(t.year-1)+'-12-'+str(day)
-    if lastday in cdates:
+    if pd.Timestamp(lastday).weekday()<5:
        break
 
+seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
+             'DGS2','DGS3','DGS5','DGS7',
+             'DGS10','DGS20','DGS30']
+#GetFREDMatrix is in frmbook_funcs
+cdates,ratematrix=GetFREDMatrix(seriesnames,startdate=lastday,enddate=lastday)
+
+#Extract numerical (yearly) tenors from series names
+tenorsfromtsy=[]
+for i in range(len(seriesnames)):
+    if seriesnames[i][-2:]=='MO':
+        tenorsfromtsy.append(float(seriesnames[i][3:-2])/12)
+    else:
+        tenorsfromtsy.append(float(seriesnames[i][3:]))
+
 #Get monhtly interpolated curve and short rate curve
-curvefromtsy=ratematrix[cdates.index(lastday)]
-tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,curvefromtsy)
+tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,ratematrix[0])
 
 random.seed(3.14159265)
 #set parameters for Ornstein-Uhlenbeck process
@@ -49,8 +61,8 @@ plt.plot(tenors, randomwalk, label='Sample Short Curve')
 plt.plot(tenors, curvesample, label='Sample UST Curve')
 ## Configure the graph
 plt.title('Hull-White Curve Generation')
-plt.xlabel('Tenor')
-plt.ylabel('Rate')
+plt.xlabel('Tenor (years)')
+plt.ylabel('Rate (%/year)')
 plt.legend()
 plt.grid(True)
 plt.show
