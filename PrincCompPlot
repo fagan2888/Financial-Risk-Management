@@ -46,9 +46,10 @@ for i in range(3):
     plt.plot(range(len(tenorsfromtsy)), list(evecs.T[i]),
          label=labelstring)
 ## Configure the graph
-plt.title('First 3 principal components, 1989-1994')
+plt.title('First 3 principal components, UST 1989-1994')
 plt.xticks(range(len(tenorsfromtsy)),tenorsfromtsy)
 plt.xlabel('Tenor')
 plt.ylabel('Weight')
+plt.legend()
 plt.grid(True)
 plt.show
