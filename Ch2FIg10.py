@@ -2,28 +2,41 @@ import matplotlib.pyplot as plt
 import random
 import pandas as pd
 #PLot 10 Hull-White paths based on yearend US Treasury curve
-#Use GetUSCurve function in frmbook functions to get Treasury curve
-tenorsfromtsy,seriesnames,cdates,ratematrix=GetUSCurve()
+
 #find end of last year
 t=pd.Timestamp.now()
 for day in [31,30,29,28]:
     lastday=str(t.year-1)+'-12-'+str(day)
-    if lastday in cdates:
+    if pd.Timestamp(lastday).weekday()<5:
        break
 
+seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
+             'DGS2','DGS3','DGS5','DGS7',
+             'DGS10','DGS20','DGS30']
+#GetFREDMatrix is in frmbook_funcs
+cdates,ratematrix=GetFREDMatrix(seriesnames,startdate=lastday,enddate=lastday)
+
+#Extract numerical (yearly) tenors from series names
+tenorsfromtsy=[]
+for i in range(len(seriesnames)):
+    if seriesnames[i][-2:]=='MO':
+        tenorsfromtsy.append(float(seriesnames[i][3:-2])/12)
+    else:
+        tenorsfromtsy.append(float(seriesnames[i][3:]))
+
 #Get monhtly interpolated curve and short rate curve
-curvefromtsy=ratematrix[cdates.index(lastday)]
-tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,curvefromtsy)
+tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,ratematrix[0])
 
 #do one graph with sigma=.05 and another
 #with sigma=.2
 #keep track of range
 minrate,maxrate=0,0
-subplot=133
-for sigma in (.2,.05):
-    plt.subplot(subplot)
-    print('sigma is',sigma)
-    random.seed(3.14159265)
+fig, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+fig.suptitle("10 Hull-White Curves, σ=.05 and .2")
+random.seed(3.14159265)
+
+ax=ax1
+for sigma in (.05,.2):
     #set parameters for Ornstein-Uhlenbeck process
     #xlambda is spring stiffness; sigma is volatility
     xlambda=1
@@ -49,15 +62,12 @@ for sigma in (.2,.05):
                 curvesample.append(cs)
         minrate=min(curvesample)
         maxrate=max(curvesample)
-        plt.plot(tenors,curvesample)
-
-    ## Configure the graph
-    plt.title('10 Hull-White Curves, σ='+str(sigma))
-    plt.xlabel('Tenor')
-    plt.ylabel('Rate')
-    plt.ylim(min(0,minrate),max(3,maxrate))
-    plt.legend()
-    plt.grid(True)
-    subplot-=2
-    
+        ax.plot(tenors,curvesample)
+    plt.xlabel('Tenor (years)')
+    ax.grid(True)
+    ax=ax2
+## Configure the graph
+plt.ylabel("Rate (%/year)")
+ax1.ylim(min(0,minrate),max(3,maxrate))
+ax2.ylim(min(0,minrate),max(3,maxrate))
 plt.show
