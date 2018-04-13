@@ -68,6 +68,5 @@ for sigma in (.05,.2):
     ax=ax2
 ## Configure the graph
 plt.ylabel("Rate (%/year)")
-ax1.ylim(min(0,minrate),max(3,maxrate))
-ax2.ylim(min(0,minrate),max(3,maxrate))
+plt.ylim(min(0,minrate),max(3,maxrate))
 plt.show
