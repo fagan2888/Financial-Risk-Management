@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+from frmbook_funcs import GetFREDMatrix
 #Plot the 2010, 2012, and most recent yearend
 #US Treasury curves
 seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
              'DGS2','DGS3','DGS5','DGS7',
              'DGS10','DGS20','DGS30']
-#GetFREDMatrix is in frmbook_funcs
 cdates,ratematrix=GetFREDMatrix(seriesnames)
 
 #find end of last year in the list of dates
