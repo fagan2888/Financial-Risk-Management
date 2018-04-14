@@ -153,6 +153,20 @@ def LastYearEnd():
             return(str(l.year)+'-12-'+str(day))
 #Done with LastYearEnd
 
+def TenorsFromNames(seriesnames):
+    #Takes a list of FRED series names
+    #of the form DGSx or DGSxMO and convers
+    #to a list of real numbers giving tenors
+    #in years. DGS3MO becomes .25, DGS30 becomes 30.0.
+    tenors=[]
+    for i in range(len(seriesnames)):
+        if seriesnames[i][-2:]=='MO':
+            tenors.append(float(seriesnames[i][3:-2])/12)
+        else:
+            tenors.append(float(seriesnames[i][3:]))
+    return(tenors)
+#Done with TenorsFromNames
+
 def GetFREDMatrix(seriesnames,progress=False,startdate=None,enddate=None):
     #Get a matrix (rows=dates,columns=series) of data
     #from FRED database
