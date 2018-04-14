@@ -138,6 +138,21 @@ def formula2p9(c,r,t):
     return(convexity)
 #Done with Formula2p9
 
+def LastYearEnd():
+    #return YYYY-MM-DD date string
+    #that is the last business day
+    #of the year before the current date.
+    #If the last calendar
+    #day is on a weekend, assumes the last
+    #Friday is the last business day
+    import datetime as dt
+    t=dt.date.today()
+    for day in [31,30,29,28]:
+        l=dt.date(t.year-1,12,day)
+        if l.weekday()<5:
+            return(str(l.year)+'-12-'+str(day))
+#Done with LastYearEnd
+
 def GetFREDMatrix(seriesnames,progress=False,startdate=None,enddate=None):
     #Get a matrix (rows=dates,columns=series) of data
     #from FRED database
