@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from frmbook_funcs import GetFREDMatrix
 from frmbook_funcs import LastYearEnd
+from frmbook_funds import TenorsFromNames
 #Plot the 2010, 2012, and most recent yearend
 #US Treasury curves
 seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
@@ -12,7 +13,7 @@ cdates,ratematrix=GetFREDMatrix(seriesnames)
 #Form the list of curve dates to display
 displaydates=['2010-12-31','2012-12-31']
 displaydates.append(LastYearEnd())
-tenors=[0.083333333,0.25,0.5,1,2,3,5,7,10,20,30]
+tenors=TenorsFromNames(seriesnames)
 
 #Plot the three lines
 for i in range(3):
