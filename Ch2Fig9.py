@@ -1,32 +1,22 @@
 import matplotlib.pyplot as plt
 import random
 import pandas as pd
+from frmbook_funcs import LastYearEnd
+from frmbook_funcs import GetFREDMatrix
+from frmbook_funcs import TenorsFromNames
+from frmbook_funcs import InterpolateCurve
 #PLot an original (year-end Treasury) curve;
 #a short-rate curve based on that;
 #a Hull-White randomly generated short-rate curve;
 #and a yield curve integrating the Hull-White short curve
 
-#find end of last year
-t=pd.Timestamp.now()
-for day in [31,30,29,28]:
-    lastday=str(t.year-1)+'-12-'+str(day)
-    if pd.Timestamp(lastday).weekday()<5:
-       break
-
+lastday=LastYearEnd()
 seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
              'DGS2','DGS3','DGS5','DGS7',
              'DGS10','DGS20','DGS30']
-#GetFREDMatrix is in frmbook_funcs
 cdates,ratematrix=GetFREDMatrix(seriesnames,startdate=lastday,enddate=lastday)
 
-#Extract numerical (yearly) tenors from series names
-tenorsfromtsy=[]
-for i in range(len(seriesnames)):
-    if seriesnames[i][-2:]=='MO':
-        tenorsfromtsy.append(float(seriesnames[i][3:-2])/12)
-    else:
-        tenorsfromtsy.append(float(seriesnames[i][3:]))
-
+tenorfromtsy=TenorsFromNames(seriesnames)
 #Get monhtly interpolated curve and short rate curve
 tenors,curvemonthly,shortrates=InterpolateCurve(tenorsfromtsy,ratematrix[0])
 
