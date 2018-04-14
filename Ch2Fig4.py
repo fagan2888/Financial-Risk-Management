@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from frmbook_funcs import GetFREDMatrix
+from frmbook_funcs import LastYearEnd
 #Plot the 2010, 2012, and most recent yearend
 #US Treasury curves
 seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
@@ -8,16 +9,9 @@ seriesnames=['DGS1MO','DGS3MO','DGS6MO','DGS1',
              'DGS10','DGS20','DGS30']
 cdates,ratematrix=GetFREDMatrix(seriesnames)
 
-#find end of last year in the list of dates
-t=pd.Timestamp.now()
-for day in [31,30,29,28]:
-    lastday=str(t.year-1)+'-12-'+str(day)
-    if lastday in cdates:
-        break
-
 #Form the list of curve dates to display
 displaydates=['2010-12-31','2012-12-31']
-displaydates.append(lastday)
+displaydates.append(LastYearEnd())
 tenors=[0.083333333,0.25,0.5,1,2,3,5,7,10,20,30]
 
 #Plot the three lines
