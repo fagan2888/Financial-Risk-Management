@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from frmbook_funcs import LastYearEnd
@@ -8,7 +9,7 @@ from frmbook_funcs import GetFREDMatrix
 
 lastday=LastYearEnd()
 seriesnames=['DEXSZUS','DEXUSEU','DEXUSUK','DEXJPUS']
-cdates,ratematrix=GetFREDMatrix(seriesnames,enddate='2016-12-30')
+cdates,ratematrix=GetFREDMatrix(seriesnames,enddate=lastday)
 
 oldstate=np.seterr(all='ignore')
 #Convert levels to log-returns
@@ -75,6 +76,9 @@ print(f'u\'C\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}u =',uciu,
 ucim=np.sum(np.matmul(ci,m))*10000
 print(f'u\'C\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}m =',ucim,
       'days')
+mcim=np.matmul(m,np.matmul(ci,m))*10000
+print(f'm\'C\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}m =',mcim*10000,
+      'bps')
 
 #Vectors for equation 3.11
 u=[1]*3
@@ -84,7 +88,6 @@ vec1=np.subtract(np.matmul(ci,m)*10000,
 print('Vector 1 in (3.11):',vec1)
 print('Vector 2 in (3.11):',vec2)
 
-mcim=np.matmul(m,np.matmul(ci,m))*10000
 lambdacoeff=(uciu*mcim*10000-ucim*ucim)/uciu
 constmu=ucim/uciu
 print(f'λ\N{SUBSCRIPT ONE} coefficient in μ:',lambdacoeff)
@@ -92,3 +95,132 @@ print('Constant term in μ:',constmu,' bps/day')
 
 print(f'1/(u\'C\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}u) =',1/uciu,
       f'(%/day)\N{SUPERSCRIPT TWO}')
+
+#Draw graph of simple efficient frontier
+lambda1s=np.arange(0,1,.01)
+xrisk=[]
+yreturn=[]
+for l1 in lambda1s:
+    xrisk.append(np.sqrt(lambdacoeff*l1**2+1/uciu))
+    yreturn.append(lambdacoeff*l1+constmu)
+
+plt.figure(1)
+plt.plot(xrisk,yreturn,marker='2')
+plt.title("Franc, Pound, Yen Efficient Frontier")
+plt.xlabel("Standard Deviation (pct/day)")
+plt.ylabel("Return (bps/day)")
+plt.xlim(0,max(xrisk)+.5)
+plt.grid()
+
+print(f'Pound weight goes negative at λ\N{SUBSCRIPT ONE}=',-vec2[1]/vec1[1])
+print('At that point μ=',-lambdacoeff*vec2[1]/vec1[1]+constmu,' bps/day')
+print('and σ=',np.sqrt(lambdacoeff*(vec2[1]/vec1[1])**2+1/uciu)*100,' bps/day')
+
+#Find the best single investment
+ibest=list(m).index(max(m))
+#The Euro is still in seriesnames
+if ibest==0:
+    sn=seriesnames[ibest]
+else:
+    sn=seriesnames[ibest+1]
+print('Best investment was',sn)
+print('μ=',m[ibest]*10000,' bps/day')
+print('σ=',np.sqrt(c[ibest,ibest])*10000,' bps/day')
+
+#Add a risk-free asset at .1 bps/day
+rfrate=.01
+plt.figure(2)
+plt.plot(xrisk,yreturn,marker='2')
+plt.title("Beginning of Franc, Pound, Yen Efficient Frontier")
+plt.xlabel("Standard Deviation (pct/day)")
+plt.ylabel("Return (bps/day)")
+plt.xlim(0,1)
+plt.ylim(-.1,2)
+plt.annotate('Riskfree asset (0,'+str(rfrate)+')', xy=(0, rfrate),
+             xytext=(.2, 1),
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            )
+plt.grid()
+
+#Print the tangency portfolio
+rfvec=[rfrate]*3
+tangencyport=np.matmul(ci,10000*m-rfvec)/(ucim-rfrate*uciu)
+print('Tangency portfolio:',tangencyport)
+#Solve for the lambda1 at tangency
+mutp=np.matmul(tangencyport,m.T)
+sigmatp=np.sqrt(np.matmul(np.matmul(tangencyport,c),tangencyport.T))
+tpl1=(mutp*10000-constmu)/lambdacoeff
+print('TP μ=',mutp*10000,' bps/day')
+print('TP σ=',sigmatp*100,' pct/day')
+print('lambda1 at tangency:',tpl1)
+
+#Show capital market line
+#Extend frontier
+lambda1s=np.arange(0,tpl1+.5,.01)
+xrisk=[]
+yreturn=[]
+for l1 in lambda1s:
+    xrisk.append(np.sqrt(lambdacoeff*l1**2+1/uciu))
+    yreturn.append(lambdacoeff*l1+constmu)
+
+#Compute line
+x=np.arange(0,max(xrisk),.01)
+y=[]
+for r in x:
+    y.append(.01*(mutp*10000-rfrate)*r/sigmatp+rfrate)
+
+plt.figure(3)
+plt.plot(xrisk,yreturn)
+plt.plot(x,y)
+plt.annotate('Tangency portfolio', xy=(sigmatp*100, mutp*10000),
+             xytext=(1,mutp*10000),
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            )
+plt.title("Capital Market Line + Franc, Pound, Yen Efficient Frontier")
+plt.xlabel("Standard Deviation (pct/day)")
+plt.ylabel("Return (bps/day)")
+plt.xlim(0,max(xrisk)+.5)
+plt.grid()
+plt.show
+
+#Black-Litterman
+wmkt=np.array([.05,.15,.8])
+mumkt=np.matmul(wmkt,m.T)
+varmkt=np.matmul(np.matmul(wmkt,c),wmkt.T)
+print('Mkt μ=',mumkt*10000,' bps/day')
+print(f'Mkt σ\N{SUPERSCRIPT TWO}=',varmkt*10000,f'(%/day)\N{SUPERSCRIPT TWO}')
+betavec=np.matmul(c,wmkt)/varmkt
+print('β =',betavec)
+
+mucapm=rfvec+(mumkt*10000-rfrate)*betavec
+print('μCAPM=',mucapm,' bps/day')
+
+#View that pounds will outperform yen
+view=np.array([0,1,-1])
+pview=.00002
+
+gamma=np.matrix([.0001])
+sweight=1
+
+#First Black-Litterman matrix calculation
+print('C\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}/s=',
+      10000*ci/sweight)
+#Second matrix
+v1=np.matmul(np.matrix(view).T,np.linalg.inv(gamma))
+vgvmtrx=np.matmul(v1,np.matrix(view))
+print('V\'Γ\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}V=',vgvmtrx)
+#Sum of the two
+print('Sum=',10000*ci/sweight+vgvmtrx)
+
+m1inv=np.linalg.inv(10000*ci/sweight+vgvmtrx)
+print('Sum inverse (x10000)=',m1inv*10000)
+
+cimcs=np.matmul(ci,mucapm/sweight)
+print('Cinv*muCAPM/s=',cimcs)
+
+print('V\'Γ\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT ONE}p=',v1*pview)
+m2=cimcs+v1.T*pview
+print('Sum=',m2)
+
+mufinal=np.matmul(m1inv,m2.T)*10000
+print('Black-Litterman μ:',mufinal)
