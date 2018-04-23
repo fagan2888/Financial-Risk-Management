@@ -1,14 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
+from scipy import stats
+from tabulate import tabulate
 from frmbook_funcs import LastYearEnd
 from frmbook_funcs import GetFREDMatrix
 #Get 3 currencies until the end of
 #previous year. Form 3x3 covariance matrix.
 #Show Q-Q plot of CHF
-#Print Jarque-Bera Statistics
-#Print table of normal probabilities
+#Print Jarque-Bera statistics
+#and normal probability table
 
 lastday=LastYearEnd()
 seriesnames=['DEXSZUS','DEXUSUK','DEXJPUS']
@@ -55,7 +56,7 @@ chf=[row[0] for row in difflgs]
 mean=np.mean(chf)
 stdev=np.std(chf)
 nobs=len(chf)
-x=norm.ppf([i/(nobs+1) for i in range(1,nobs+1)])
+x=stats.norm.ppf([i/(nobs+1) for i in range(1,nobs+1)])
 #Plot the diagonal
 line=plt.plot(x, x)
 plt.setp(line, linewidth=2, color='r')
@@ -79,9 +80,8 @@ plt.grid(True)
 plt.show
 
 #Jarque-Bera
-from scipy.stats import skew, kurtosis
-sk=skew(chf)
-ku=kurtosis(chf)
+sk=stats.skew(chf)
+ku=stats.kurtosis(chf)
 jb=(nobs/6)*(sk**2+(ku**2)/4)
 print('Skewness %f' % sk)
 print('Excess Kurtosis %f' % ku)
@@ -90,4 +90,4 @@ print('Jarque-Bera Statistic %f' % jb)
 #Normal distribution probabilities
 print('Normal distribution probabilities (log10)')
 for i in range(21):
-    print(i,np.log(norm.cdf(-i))/np.log(10))
+    print(i,np.log(stats.norm.cdf(-i))/np.log(10))
