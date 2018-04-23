@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 from frmbook_funcs import LastYearEnd
 from frmbook_funcs import GetFREDMatrix
 #Get 4 currencies until the end of
@@ -43,7 +44,11 @@ c=np.cov(np.array(difflgs).T)
 
 #get eigenvalues and eigenvectors
 evals,evecs=np.linalg.eig(c)
-evals=np.flipud(np.sort(evals))
+#Put the eigensystem in decreasing
+#order of eigenvalues
+sortorder=evals.argsort()[::-1]
+evals=evals[sortorder]
+evecs=evecs[:,sortorder]
 
 #Make the scree plot
 plt.plot(range(1,5), list(evals*100/sum(evals)))
@@ -53,3 +58,43 @@ plt.ylabel('Percent of Trace')
 plt.xticks(range(1,5),range(1,5))
 plt.grid(True)
 plt.show
+
+#Display the 4x4 covariance matrix
+print('1999-'+lastday[:4]+' covariance matrix: (%d days)' % len(difflgs))
+for i in range(4):
+    print(c[i]*10000)
+
+#Compute 2008 covariance matrix
+s2008=lgdates.index('2008-01-02')
+e2008=lgdates.index('2008-12-31')
+c2008=np.cov(np.array(difflgs[s2008-1:e2008+1]).T)
+#Display the 4x4 covariance matrix
+print('2008 covariance matrix:')
+for i in range(4):
+    print(c2008[i]*10000)
+
+#Display the eigenvalues
+print('Full period eigenvalues:')
+print(evals*1000000)
+
+#Display the eigenvectors
+print('Eigenvector (column) matrix:')
+for i in range(4):
+    print(evecs[i])
+    
+#get eigenvalues and eigenvectors of the 2008 matrix
+evals2008,evecs2008=np.linalg.eig(c2008)
+#Put the eigensystem in decreasing
+#order of eigenvalues
+sortorder2008=evals2008.argsort()[::-1]
+evals2008=evals2008[sortorder2008]
+evecs2008=evecs2008[:,sortorder2008]
+
+#Display the 2008 eigenvalues
+print('2008 eigenvalues:')
+print(evals2008*1000000)
+
+#Display the 2008 eigenvectors
+print('2008 eigenvector (column) matrix:')
+for i in range(4):
+    print(evecs2008[i])
