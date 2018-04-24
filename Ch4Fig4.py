@@ -1,25 +1,4 @@
-statnames,metrics,table=StatsTable(portfolio)
-print(tabulate(table))
-
-#Delta-normal calculations
-dn_mean=np.mean(portfolio)   #In fractions
-dn_var=np.matmul(np.matmul(w,c),w)*10000   #in (pct/day)**2
-print('Delta-Normal Variance %8.4f' % dn_var)
-dn_std=np.sqrt(dn_var)    #in pct/day
-print('Delta-Normal Standard Deviation %8.4f' % dn_std)
-#99% Value at Risk
-dn_99VaR=-dn_mean*100-stats.norm.ppf(.01)*dn_std
-print('99%% Value at Risk (pct/day): %8.4f' % dn_99VaR)
-#Expected Shortfall (4.80)
-dn_99ES=np.exp(-.5*stats.norm.ppf(.99)**2)
-dn_99ES/=.01*np.sqrt(2*np.pi)
-dn_99ES*=dn_std
-print('99%% Expected Shortfall (pct/day): %8.4f' % dn_99ES)
-
-#Compute gradient
-dn_gradient=1000000*np.matmul(c,w)/dn_std
-print('Gradient (bps/day):',dn_gradient)
-print('Contributions to Std Dev:',dn_gradient*w)
+#This code segment to be run after Ch4Fig3.py
 
 #Draw Cornish-Fisher graph
 stepsize=12*(np.sqrt(2)-1)/100
