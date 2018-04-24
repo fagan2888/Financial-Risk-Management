@@ -5,6 +5,7 @@ from scipy import stats
 from tabulate import tabulate
 from frmbook_funcs import LastYearEnd
 from frmbook_funcs import GetFREDMatrix
+from frmbook_funcs import StatsTable
 #Get 3 currencies until the end of
 #previous year. Form 3x3 covariance matrix.
 #Show Q-Q plot of CHF
