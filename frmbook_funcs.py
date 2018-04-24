@@ -261,3 +261,54 @@ def InterpolateCurve(tenors_in,curve_in):
         
     return(tenors_out,curve_out,shortrates)
 #Done with InterpolateCurve
+
+def StatsTable(xret):
+    #Create statistics table from x vector
+    #giving periodic returns or log-returns
+    #Returns a vector statnames giving the names
+    #of the computed statistics, and metrics giving
+    #the actual statistics
+    #Also returns a text array table suitable
+    #for printing
+    statnames=['Count','Min','Max','Mean','Median',
+               'Standard Deviation','Skewness',
+               'Excess Kurtosis','Jarque-Bera',
+               'Chi-Squared p','Serial Correlation',
+               '99% VaR','99% Expected Shortfall']
+    metrics=[]
+    #Item count
+    metrics.append(len(xret))
+    #Extremes
+    metrics.append(min(xret))
+    metrics.append(max(xret))
+    #Mean, median
+    metrics.append(np.mean(xret))
+    metrics.append(np.median(xret))
+    #2, 3, 4 moments
+    metrics.append(np.std(xret))
+    metrics.append(stats.skew(xret))
+    metrics.append(stats.kurtosis(xret))
+    #Jarque-Bera
+    #Direct computation gives the same thing as
+    #the stats.jarque_bera function
+    #jb=(metrics[0]/6)*(metrics[6]**2+(metrics[7]**2)/4)
+    #metrics.append(jb)
+    jb=stats.jarque_bera(xret)
+    metrics.append(jb[0])   #The JB statistic
+    metrics.append(jb[1])   #Chi-squared test p-value
+    #Serial correlation
+    metrics.append(stats.pearsonr(xret[:len(xret)-1],xret[1:])[0])
+    #99% VaR
+    low1=np.percentile(xret,1)
+    metrics.append(-low1)
+    metrics.append(-np.mean([x for x in xret if x<=low1]))
+    
+    #Change numbers to text
+    table=['Statistic','Value']
+    for i in range(len(metrics)):
+        rowlist=[]
+        rowlist.append(statnames[i])
+        rowlist.append('%10.7f' % metrics[i])
+        table.append(rowlist)
+    return(statnames,metrics,table)
+#Done with StatsTable
