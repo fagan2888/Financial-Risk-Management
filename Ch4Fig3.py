@@ -1,5 +1,4 @@
-#Run this after running Ch4Fig2.py
-
+#This code segment to be run after Ch4Fig2.py
 
 #Show histogram of equal-weighted
 #CHF-GBP-JPY log-changes
@@ -36,49 +35,8 @@ plt.grid()
 plt.ylabel('Day count')
 plt.title('Histogram of equal-weighted CHF+GBP+JPY\n daily log-changes, '+lgdates[0][:4]+'-'+lastday[:4])
 plt.show
-
-#Create statistics table
-statnames=['Count','Min','Max','Mean','Median',
-           'Standard Deviation','Skewness',
-           'Excess Kurtosis','Jarque-Bera',
-           'Chi-Squared p','Serial Correlation',
-           '99% VaR','99% Expected Shortfall']
-metrics=[]
-#Item count
-metrics.append(len(portfolio))
-#Extremes
-metrics.append(min(portfolio))
-metrics.append(max(portfolio))
-#Mean, median
-metrics.append(np.mean(portfolio))
-metrics.append(np.median(portfolio))
-#2, 3, 4 moments
-metrics.append(np.std(portfolio))
-metrics.append(stats.skew(portfolio))
-metrics.append(stats.kurtosis(portfolio))
-#Jarque-Bera
-#Direct computation gives the same thing as
-#the stats.jarque_bera function
-#jb=(metrics[0]/6)*(metrics[6]**2+(metrics[7]**2)/4)
-#metrics.append(jb)
-jb=stats.jarque_bera(portfolio)
-metrics.append(jb[0])   #The JB statistic
-metrics.append(jb[1])   #Chi-squared test p-value
-#Serial correlation
-metrics.append(stats.pearsonr(portfolio[:len(portfolio)-1],portfolio[1:])[0])
-#99% VaR
-low1=np.percentile(portfolio,1)
-metrics.append(-low1)
-metrics.append(-np.mean([x for x in portfolio if x<=low1]))
-
-#Change numbers to text
-table=['Statistic','Value']
-for i in range(len(metrics)):
-    rowlist=[]
-    rowlist.append(statnames[i])
-    rowlist.append('%10.7f' % metrics[i])
-    table.append(rowlist)
     
+statnames,metrics,table=StatsTable(portfolio)
 print(tabulate(table))
 
 #Delta-normal calculations
