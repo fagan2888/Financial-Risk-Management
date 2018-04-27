@@ -2,8 +2,11 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+#Last part of Chapter 5:
 #Generate 10,000 standard normal draws
-#Take exceedances over 2
+#Take exceedances over 2; show number and average exceedance
+#Display Q-Q plot of GPD (Gumbel, xi=0) versus the random sample
+#Fit empirical to best GPD (not necessarily Gumbel) and display xi and beta.
 threshold=2
 n=10000
 random.seed(314159)
@@ -42,9 +45,20 @@ plt.show
 
 #Find best fit of parameters beta and xi
 def GPD(x,xi,beta):
-    #Cumulative distribution function is
-    #1-(1+xi*x/beta)^(-1/xi)
-    b=1+xi*x/beta
-    return(1-b**(-1/xi))
-    
-argopt,argc=curve_fit(xsample,ysample,GPD)
+    #Cumulative Generalized Pareto distribution
+    #function is 1-(1+xi*x/beta)^(-1/xi)
+    if beta==0:
+        b=1
+    else: #Don't let there be a negative number
+          #raised to a power
+        b=abs(1+xi*x/beta)
+    if xi==0:
+        gpdcdf=1
+    else:
+        gpdcdf=1-b**(-1/xi)
+    return(gpdcdf)
+
+argopt,argc=curve_fit(GPD,xsample,ysample)
+
+print("Optimal xi:",argopt[0])
+print("Optimal beta:",argopt[1])
