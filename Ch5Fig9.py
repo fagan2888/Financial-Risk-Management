@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 #Last part of Chapter 5:
 #Generate 10,000 standard normal draws
 #Take exceedances over 2; show number and average exceedance
-#Display Q-Q plot of GPD (Gumbel, xi=0) versus the random sample
+#Display CDF plot of GPD (Gumbel, xi=0) versus the random sample
 #Fit empirical to best GPD (not necessarily Gumbel) and display xi and beta.
 threshold=2
 n=10000
@@ -29,7 +29,7 @@ print('Average exceedance:',avex)
 maxlike=-numex*(np.log(avex)+1)
 print('Maximum likelihood function at beta,number:',maxlike)
 
-#Show the Q-Q plot
+#Show the CDF plot
 #x's are sorted values of the exceedances
 xsample=np.sort(exceeds)
 ysample=[(i+1)/(numex+1) for i in range(numex)]
@@ -40,7 +40,7 @@ plt.plot(xsample,ygumbel,label='Gumbel')
 
 plt.grid()
 plt.legend()
-plt.title('Q-Q plot Gumbel vs. sample of exceedences')
+plt.title('CDF plot Gumbel vs. sample of exceedences')
 plt.show
 
 #Find best fit of parameters beta and xi
