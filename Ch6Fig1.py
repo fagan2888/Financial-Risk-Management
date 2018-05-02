@@ -1,3 +1,6 @@
+import frmbook_funcs
+import random
+import numpy as np
 #Generate virtual reality for graph of standard deviations
 
 #First get actual reality
@@ -5,7 +8,7 @@ Date,market_minus_rf,SMB,HML,RF=frmbook_funcs.getFamaFrench3()
 ActualReality=frmbook_funcs.LogReturnConvert(market_minus_rf,RF)
 
 #Compute overall monthly standard deviation
-targetsd=numpy.std(ActualReality)
+targetsd=np.std(ActualReality)
 
 #Generate virtual reality with random normal draws with targetsd
 VirtualReality=[]
@@ -19,4 +22,5 @@ SampleSd=frmbook_funcs.GenSampleSd(VirtualReality,lookbacks)
 
 #Draw the graph with 3 lines for the 3 periodicities
 colors=['y-','b-','r-']
-frmbook_funcs.PlotSampleSd('Figure 1',Date,SampleSd,lookbacks,colors)
+tstr='Figure 1, annual σ=%.2f' % float(targetsd*np.sqrt(12))
+frmbook_funcs.PlotSampleSd(tstr,Date,SampleSd,lookbacks,colors)
