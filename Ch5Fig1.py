@@ -22,6 +22,6 @@ for i,multiple in enumerate(y):
 plt.grid()
 plt.legend()
 plt.xlabel('Fraction of riskier distribution, '+r'$w_1$')
-plt.ylabel('Multiple, r')
+plt.ylabel(r'$κ_{\rm{𝑚𝑖𝑥}}$')
 plt.title('Kurtosis of mixtures of normals, Formula 5.19')
 plt.show
