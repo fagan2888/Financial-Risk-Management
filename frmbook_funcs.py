@@ -63,6 +63,10 @@ def getFamaFrench3():
     SMB=df_monthly["SMB"]
     HML=df_monthly["HML"]
     RF=df_monthly["RF"]
+    #Although downloadable files say "Mkt-RF," and appear to actually have Mkt-RF,
+    #what is returned here seems to be "Mkt." E.g. 201612 Mkt-RF = 1.82 in file; RF=.03
+    #But what is returned here is 1.85, i.e. Mkt. So make adjustment.
+    market_minus_rf-=RF
     
     return(Date,market_minus_rf,SMB,HML,RF)
 #Done with getFamaFrench3
