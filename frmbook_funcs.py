@@ -142,15 +142,21 @@ def formula2p9(c,r,t):
     return(convexity)
 #Done with Formula2p9
 
-def LastYearEnd():
+def LastYearEnd(yearof=0):
     #return YYYY-MM-DD date string
     #that is the last business day
-    #of the year before the current date.
+    #of yearof, or the year before
+    #the current date if no yearof argument.
+    #
     #If the last calendar
     #day is on a weekend, assumes the last
     #Friday is the last business day
     import datetime as dt
-    t=dt.date.today()
+
+    if yearof<=0:
+        t=dt.date.today()  #Use current year
+    else:
+        t=dt.date(yearof+1,12,31)  #Use argument
     for day in [31,30,29,28]:
         l=dt.date(t.year-1,12,day)
         if l.weekday()<5:
