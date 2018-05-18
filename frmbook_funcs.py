@@ -322,3 +322,70 @@ def StatsTable(xret):
         table.append(rowlist)
     return(statnames,metrics,table)
 #Done with StatsTable
+
+def Garch11Fit(initparams,InputData):
+    #Fit a GARCH(1,1) model to InputData
+    #Using (6.42)
+    #Returns the triplet a,b,c (actually a1, b1, c)
+    #From (6.41)
+    #Initial guess is triple in initparams
+    import scipy.optimize as scpo
+    import numpy as np
+
+    def GarchMaxLike(params):
+        #Implement formula 6.42
+        a,b,c=params
+        t=len(InputData)
+        minimal=10**(-20)
+        vargarch=np.zeros(t)
+
+        #CHEATS!
+        #Seed the variance with the whole-period variance
+        #In practice we would have to have a holdout sample
+        #at the beginning and roll the estimate forward.
+        vargarch[0]=np.var(InputData)
+
+        #Another cheat: take the mean over the whole period
+        #and center the series on that. Hopefully the mean
+        #is close to zero. Again in practice to avoid lookahead
+        #we would have to roll the mean forward, using only
+        #past data.
+        overallmean=np.mean(InputData)
+
+        #Compute GARCH(1,1) var's from data given parameters
+        for i in range(1,t):
+            #Note offset - i-1 observation of data
+            #is used for i estimate of variance
+            vargarch[i]=c+b*vargarch[i-1]+\
+            a*(InputData[i-1]-overallmean)**2
+            if vargarch[i]<=0:
+                vargarch[i]=minimal
+                
+        #sum logs of variances
+        logsum=np.sum(np.log(vargarch))
+    
+        #sum yi^2/sigma^2
+        othersum=0
+        for i in range(t):
+            othersum+=((InputData[i]-overallmean)**2)/vargarch[i]
+
+        #Actually -2 times (6.42) since we are minimizing
+        return(logsum+othersum)
+
+    #a and b between 0 and 1, c positive
+    garch_bounds = scpo.Bounds([0,0,0],[1,1,np.inf])
+    #Sum of a and b is less than 1
+    garch_linear_constraint = \
+        scpo.LinearConstraint([[1, 1, 0]], \
+              [0], [.99999])
+
+    results = scpo.minimize(GarchMaxLike, \
+        initparams, \
+        method='trust-constr', \
+        jac='2-point', \
+        hess=scpo.SR1(), \
+        bounds=garch_bounds, \
+        constraints=garch_linear_constraint)
+
+    return(results.x)
+#Done with Garch11Fit
