@@ -7,8 +7,8 @@ from frmbook_funcs import LastYearEnd
 #Generate normal Monte Carlo with same correlation,
 #and plot samples of correlations from Monte Carlo
 
-intrinio.client.username = '9de6c0a5ee98c33af8b52bc3396412fb'
-intrinio.client.password = 'e2afafa7db68af85ae990dc641a55f79'
+intrinio.client.username = '123'  #Get your own username!
+intrinio.client.password = '456'  #Get your own password!
 
 #Extract common dates and adjusted closing
 #prices; adjusted closes allow total return
@@ -90,7 +90,7 @@ rtrial=np.matmul(chol,strial.T).T
 samplesize=12
 samplecorrs=[]
 for i in range(samplesize,nobs+1):
-    samplecorrs.append(dfcomb.iloc[i-samplesize:i].corr())
+    samplecorrs.append(np.corrcoef(rtrial[i-samplesize:i].transpose()))
 
 #plot sample correlations
 sccol=['r','g','b']
@@ -101,7 +101,7 @@ for j in range(nsecs-1):
     for k in range(j+1,nsecs):
         #form time series of sample correlation
         #for this pair of securities
-        scs=[samplecorrs[i].iloc[j,k] for i in range(nobs-samplesize+1)]
+        scs=[samplecorrs[i][j,k] for i in range(nobs-samplesize+1)]
         plt.plot(range(nobs-samplesize+1),scs, \
                  label=dfcomb.columns[j]+'/' \
                  +dfcomb.columns[k], \
@@ -115,6 +115,6 @@ plt.legend()
 scdates=[str(x)[:10] for x in dfcomb.index[samplesize-1:]]
 stride=int((nobs-samplesize+1)/(4*samplesize))*samplesize
 plt.xticks(range(0,nobs-samplesize+1,stride),scdates[0:nobs-samplesize+1:stride])
-plt.title('12-month sample correlations, normal Monte Carlo')
+plt.title(str(samplesize)+'-month sample correlations, normal Monte Carlo')
 plt.grid()
 plt.show()
