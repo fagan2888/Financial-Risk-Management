@@ -15,7 +15,8 @@ intrinio.client.password = 'e2afafa7db68af85ae990dc641a55f79'
 
 #returns will start one period later than startdate
 startdate='1986-12-31'
-enddate=LastYearEnd()
+#Intrinio uses 12-31 even if it's not a business day
+enddate=LastYearEnd()[:4]+'-12-32'
 tickerlist=['ORCL','ED','F']
 for i,t in enumerate(tickerlist):
     #This can be very slow
@@ -52,11 +53,12 @@ overallstd=np.std(dfcomb)
 
 #Get GARCH params for each ticker
 gparams=[]
+stgs=[] #Save the running garch sigma's
 for it,ticker in enumerate(tickerlist):
     gparams.append(Garch11Fit(initparams,dfcomb[ticker]))
     a,b,c=gparams[it]
     
-    #Draw graph
+    #Create time series of sigmas
     t=len(dfcomb[ticker])
     minimal=10**(-20)
     stdgarch=np.zeros(t)
@@ -70,14 +72,17 @@ for it,ticker in enumerate(tickerlist):
             a*(dfcomb[ticker][i-1]-overallmean[ticker])**2
         stdgarch[i]=np.sqrt(var)
 
+    #Save for later de-GARCHing
+    stgs.append(stdgarch)
+
+#Create plot
+for it,ticker in enumerate(tickerlist):
     #Annualize
-    stdgarch*=np.sqrt(12)
-
-    plt.plot(dfcomb.index,stdgarch*100,label=ticker)
-
+    stdgarch=100*np.sqrt(12)*stgs[it]
+    plt.plot(dfcomb.index,stdgarch,label=ticker)
 plt.grid()
-plt.title('GARCH(1,1) fits')
-plt.ylabel('GARCH Sample SDs')
+plt.title('GARCH(1,1) annualized standard deviations '+str(dfcomb.index[0])[:4]+'-'+enddate[:4])
+plt.ylabel('GARCH SDs')
 plt.legend()
 plt.axis([min(dfcomb.index),max(dfcomb.index),0,150])
 plt.show()
@@ -86,4 +91,5 @@ for it,tick in enumerate(tickerlist):
     print(tick,'a=%1.4f' % gparams[it][0], \
                'b=%1.4f' % gparams[it][1], \
                'c=%1.8f' % gparams[it][2], \
-               'AnnEquilibStd=%1.4f' % np.sqrt(12*gparams[it][2]/(1-gparams[it][0]-gparams[it][1])))
+               'AnnEquilibStd=%1.4f' % \
+               np.sqrt(12*gparams[it][2]/(1-gparams[it][0]-gparams[it][1])))
