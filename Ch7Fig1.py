@@ -16,7 +16,8 @@ intrinio.client.password = '456'  #Get your own password!
 
 #returns will start one period later than startdate
 startdate='1986-12-31'
-enddate=LastYearEnd()
+#Intrinio uses 12-31 even if it's not a business day
+enddate=LastYearEnd()[:4]+'-12-31'
 tickerlist=['ORCL','ED','F']
 for i,t in enumerate(tickerlist):
     #This can be very slow
