@@ -1,12 +1,12 @@
 #To be run after Ch7Fig1.py
 #Copy of code to generate 12-month samples
-#Will turn this into a function...
+#Need to turn this into a function...
 
 #Get sample 36-month correlations
 samplesize=36
 samplecorrs=[]
 for i in range(samplesize,nobs+1):
-    samplecorrs.append(dfcomb.iloc[i-samplesize:i].corr())
+    samplecorrs.append(np.corrcoef(rtrial[i-samplesize:i].transpose()))
 
 #plot sample correlations
 sccol=['r','g','b']
@@ -17,7 +17,7 @@ for j in range(nsecs-1):
     for k in range(j+1,nsecs):
         #form time series of sample correlation
         #for this pair of securities
-        scs=[samplecorrs[i].iloc[j,k] for i in range(nobs-samplesize+1)]
+        scs=[samplecorrs[i][j,k] for i in range(nobs-samplesize+1)]
         plt.plot(range(nobs-samplesize+1),scs, \
                  label=dfcomb.columns[j]+'/' \
                  +dfcomb.columns[k], \
