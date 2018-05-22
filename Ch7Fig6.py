@@ -8,8 +8,8 @@ from frmbook_funcs import LastYearEnd
 from frmbook_funcs import Garch11Fit
 #Get covariance matrix of 3 stocks from Intrinio
 
-intrinio.client.username = '9de6c0a5ee98c33af8b52bc3396412fb'
-intrinio.client.password = 'e2afafa7db68af85ae990dc641a55f79'
+intrinio.client.username = #Fill in username
+intrinio.client.password = #Fill in password
 
 #Extract common dates and adjusted closing
 #prices; adjusted closes allow total return
