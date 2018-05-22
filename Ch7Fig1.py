@@ -7,15 +7,15 @@ from frmbook_funcs import LastYearEnd
 #Generate normal Monte Carlo with same correlation,
 #and plot samples of correlations from Monte Carlo
 
-intrinio.client.username = '123'  #Get your own username!
-intrinio.client.password = '456'  #Get your own password!
+intrinio.client.username = #Get your own username!
+intrinio.client.password = #Get your own password!
 
 #Extract common dates and adjusted closing
 #prices; adjusted closes allow total return
 #computation
 
 #returns will start one period later than startdate
-startdate='1986-12-31'
+startdate='1997-12-31'
 #Intrinio uses 12-31 even if it's not a business day
 enddate=LastYearEnd()[:4]+'-12-31'
 tickerlist=['ORCL','ED','F']
