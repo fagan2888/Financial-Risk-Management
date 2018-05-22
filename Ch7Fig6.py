@@ -2,6 +2,8 @@ import intrinio
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as spst
+from scipy.optimize import minimize_scalar
 from frmbook_funcs import LastYearEnd
 from frmbook_funcs import Garch11Fit
 #Get covariance matrix of 3 stocks from Intrinio
@@ -14,9 +16,9 @@ intrinio.client.password = 'e2afafa7db68af85ae990dc641a55f79'
 #computation
 
 #returns will start one period later than startdate
-startdate='1986-12-31'
+startdate='1997-12-31'
 #Intrinio uses 12-31 even if it's not a business day
-enddate=LastYearEnd()[:4]+'-12-32'
+enddate=LastYearEnd()[:4]+'-12-31'
 tickerlist=['ORCL','ED','F']
 for i,t in enumerate(tickerlist):
     #This can be very slow
@@ -93,3 +95,17 @@ for it,tick in enumerate(tickerlist):
                'c=%1.8f' % gparams[it][2], \
                'AnnEquilibStd=%1.4f' % \
                np.sqrt(12*gparams[it][2]/(1-gparams[it][0]-gparams[it][1])))
+    
+#Display before and after statistics
+print('Raw monthly std devs:',overallstd)
+print('Raw kurtosis:',spst.kurtosis(dfcomb))
+
+#DeGARCHed series go in dfeps
+dfeps=dfcomb.copy()
+dfeps=dfeps-overallmean
+for it,ticker in enumerate(tickerlist):
+    for i in range(len(dfeps)):
+        dfeps[ticker][i]/=stgs[it][i]
+    print(ticker,'Mean:',np.mean(dfeps[ticker]), \
+          'Std Dev:',np.std(dfeps[ticker]), \
+          'Kurtosis:',spst.kurtosis(dfeps[ticker]))
