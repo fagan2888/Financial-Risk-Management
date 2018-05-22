@@ -41,7 +41,8 @@ result=minimize_scalar(IntegratedCorrObj, \
 print('Optimal lambda:',result.x)
 print('Optimal objective function:', \
       IntegratedCorrObj(result.x))
-print('Half-life (months):',-np.log(2)/np.log(1-result.x))
+halflife=-np.log(2)/np.log(1-result.x)
+print('Half-life (months):',halflife)
 
 #Plot integrated correlations
 previousq=np.identity(len(InData[0]))
@@ -55,13 +56,27 @@ for i in range(len(InData)):
     shockmat=np.matmul(shockvec.T,shockvec)
     previousq=xlam*shockmat+(1-xlam)*previousq
 
+iccol=['r','g','b']
+z=0
 for it in range(len(tickerlist)-1):
     for jt in range(it+1,len(tickerlist)):
         y=[rmatrices[i][it,jt] for i in range(len(InData))]
-        plt.plot(dfeps.index,y,label=tickerlist[it]+'/'+tickerlist[jt])
+        plt.plot(dfeps.index,y, \
+            label=tickerlist[it]+'/'+tickerlist[jt], \
+            color=iccol[z])
+        z+=1
 plt.grid()
 xtitle='Integrated correlations λ=%1.5f' % xlam
 xtitle+=', '+str(dfeps.index[0])[:4]+'-'+enddate[:4]
 plt.title(xtitle)
 plt.legend()
 plt.show()
+
+#Map of objective with respect to half-life
+halflife=int(halflife)
+y=[]
+for h in range(halflife-10,halflife+10):
+    xlam=1-(.5)**(1/h)    
+    y.append(IntegratedCorrObj(xlam))
+    
+plt.plot(range(halflife-10,halflife+10),y)
