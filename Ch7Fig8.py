@@ -89,3 +89,21 @@ xtitle+=', '+str(dfeps.index[0])[:4]+'-'+enddate[:4]
 plt.title(xtitle)
 plt.legend()
 plt.show()
+
+#MacGyver method - pairwise integrated
+minimal=10**(-20)
+for it in range(len(tickerlist)-1):
+    tick1=tickerlist[it]
+    for jt in range(it+1,len(tickerlist)):
+        tick2=tickerlist[jt]
+        InData=np.array(dfeps[[tick1,tick2]])
+        result=minimize_scalar(IntegratedCorrObj)
+        xlamopt=np.exp(result.x)/(1+np.exp(result.x))
+        print(tick1,tick2,'Optimal lambda:',xlamopt)
+        print('Optimal objective function:', \
+              result.fun)
+        if np.absolute(xlamopt)<minimal or xlamopt>=1:
+            halflife=0
+        else:
+            halflife=-np.log(2)/np.log(1-xlamopt)
+        print('Half-life (months):',halflife)
