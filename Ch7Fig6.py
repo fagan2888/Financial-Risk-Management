@@ -55,6 +55,7 @@ overallstd=np.std(dfcomb)
 
 #Get GARCH params for each ticker
 gparams=[]
+initparams=[.12,.85,.6]
 stgs=[] #Save the running garch sigma's
 for it,ticker in enumerate(tickerlist):
     gparams.append(Garch11Fit(initparams,dfcomb[ticker]))
