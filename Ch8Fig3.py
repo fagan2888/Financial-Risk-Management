@@ -27,7 +27,8 @@ n=len(longterm)
 vxnames=['VXOCLS','VIXCLS']
 vxdates,vxmatrix=GetFREDMatrix(vxnames,
             enddate=lastday)
-#Align VIX's; monthly dates for bonds look like
+
+#Align VIX's; monthly dates for bond yields look like
 #YYYY-MM-01 but they're really the last business day
 vixstart=cdates.index(vxdates[0][:8]+'01')
 iv=0
@@ -77,8 +78,13 @@ tsy2=np.cumsum(longterm)
 tsy3=(tsy2[back:]-tsy2[:-back])/back
 tsy=np.concatenate((tsy3, longterm[-back:]), axis=0)
 
-#Correlate smoothed spreads with VIX
+#Smooth VIX too
 vix=[x[5] for x in ratematrix[vixstart:]]
+vix2=np.cumsum(vix)
+vix3=(vix2[back:]-vix2[:-back])/back
+vix=np.concatenate((vix3, vix[-back:]), axis=0)
+
+#Correlate smoothed spreads with VIX
 av_level=scipy.stats.pearsonr(vix,aaa[vixstart:])[0]
 bv_level=scipy.stats.pearsonr(vix,bbb[vixstart:])[0]
 av_diff=scipy.stats.pearsonr(np.diff(vix),np.diff(aaa[vixstart:]))[0]
