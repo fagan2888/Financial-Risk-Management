@@ -47,7 +47,7 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 fig.gca().invert_xaxis()
 
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+surf = ax.plot_surface(X, Y, Z, cmap=cm.jet,
                        linewidth=0, antialiased=False)
 
 # Customize the z axis.
