@@ -1,3 +1,4 @@
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import FormatStrFormatter
@@ -31,8 +32,8 @@ def Form9p39(lt,t,alphl,alphs,sl,ss,rh):
     return(norm.cdf(d1))
 
 # Make data.
-X = np.arange(1,31)  #Short sigma
-Y = np.arange(1,31)  #Long sigma
+X = np.arange(1,30.25,.25)  #Short sigma
+Y = np.arange(1,30.25,.25)  #Long sigma
 X, Y = np.meshgrid(X, Y)
 
 #Do Z axis in percent
@@ -42,10 +43,6 @@ Z=100.0*Form9p39(logterm,time,alpha_l,alpha_s,Y,X,rho)
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 fig.gca().invert_xaxis()
-fig_size = plt.rcParams["figure.figsize"]
-fig_size[0]*=3
-fig_size[1]*=3
-plt.rcParams["figure.figsize"] = fig_size
 
 surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
                        linewidth=0, antialiased=False)
