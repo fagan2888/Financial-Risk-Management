@@ -32,8 +32,8 @@ def Form9p39(lt,t,alphl,alphs,sl,ss,rh):
     return(norm.cdf(d1))
 
 # Make data.
-X = np.arange(1,30.25,.25)  #Short sigma
-Y = np.arange(1,30.25,.25)  #Long sigma
+X = np.arange(.25,30.25,.25)  #Short sigma
+Y = np.arange(.25,30.25,.25)  #Long sigma
 X, Y = np.meshgrid(X, Y)
 
 #Do Z axis in percent
@@ -44,7 +44,7 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 fig.gca().invert_xaxis()
 
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+surf = ax.plot_surface(X, Y, Z, cmap=cm.jet,
                        linewidth=0, antialiased=False)
 
 # Customize the z axis.
