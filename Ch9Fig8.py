@@ -80,5 +80,5 @@ ax.zaxis.set_major_formatter(FormatStrFormatter('%.01f'))
 
 ax.set_xlabel(r'$\sigma_S$')
 ax.set_ylabel(r'$\sigma_L$')
-ax.set_zlabel('Failure Prob =Diff (%)')
+ax.set_zlabel('Incr. Failure Prob (%)')
 plt.show()
