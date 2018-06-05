@@ -31,7 +31,7 @@ def Form9p56(lt,sf,t,alphl,alphs,sl,ss,rh):
     e2=(lt+(bigb-biggamma_sq/2)*t)/np.sqrt(biggamma_sq*t)
 
     failure_prob=norm.cdf(e1)
-    failure_prob+=norm.cdf(e2)*np.exp(-logterm*(1-2*bigb/biggamma_sq))
+    failure_prob+=norm.cdf(e2)*np.exp(-lt*(1-2*bigb/biggamma_sq))
     return(failure_prob)
 
 # Make data.
