@@ -332,10 +332,12 @@ def Garch11Fit(initparams,InputData):
     import scipy.optimize as scpo
     import numpy as np
 
+    array_data=np.array(InputData)
+
     def GarchMaxLike(params):
         #Implement formula 6.42
         a,b,c=params
-        t=len(InputData)
+        t=len(array_data)
         minimal=10**(-20)
         vargarch=np.zeros(t)
 
@@ -343,32 +345,29 @@ def Garch11Fit(initparams,InputData):
         #Seed the variance with the whole-period variance
         #In practice we would have to have a holdout sample
         #at the beginning and roll the estimate forward.
-        vargarch[0]=np.var(InputData)
+        vargarch[0]=np.var(array_data)
 
         #Another cheat: take the mean over the whole period
         #and center the series on that. Hopefully the mean
         #is close to zero. Again in practice to avoid lookahead
         #we would have to roll the mean forward, using only
         #past data.
-        overallmean=np.mean(InputData)
-
+        overallmean=np.mean(array_data)
         #Compute GARCH(1,1) var's from data given parameters
         for i in range(1,t):
             #Note offset - i-1 observation of data
             #is used for i estimate of variance
             vargarch[i]=c+b*vargarch[i-1]+\
-            a*(InputData[i-1]-overallmean)**2
+            a*(array_data[i-1]-overallmean)**2
             if vargarch[i]<=0:
                 vargarch[i]=minimal
                 
         #sum logs of variances
         logsum=np.sum(np.log(vargarch))
-    
         #sum yi^2/sigma^2
         othersum=0
         for i in range(t):
-            othersum+=((InputData[i]-overallmean)**2)/vargarch[i]
-
+            othersum+=((array_data[i]-overallmean)**2)/vargarch[i]
         #Actually -2 times (6.42) since we are minimizing
         return(logsum+othersum)
 
