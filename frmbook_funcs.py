@@ -336,7 +336,15 @@ def Garch11Fit(initparams,InputData):
 
     def GarchMaxLike(params):
         #Implement formula 6.42
-        a,b,c=params
+        xa,xb,xc=params
+        if xa>10: xa=10
+        if xb>10: xb=10
+        if xc>10: xc=10
+        #Use trick to force a and b between 0 and .999;
+        #(a+b) less than .999; and c>0
+        a=.999*np.exp(xa)/(1+np.exp(xa))
+        b=(.999-a)*np.exp(xb)/(1+np.exp(xb))
+        c=np.exp(xc)
         t=len(array_data)
         minimal=10**(-20)
         vargarch=np.zeros(t)
@@ -370,21 +378,21 @@ def Garch11Fit(initparams,InputData):
             othersum+=((array_data[i]-overallmean)**2)/vargarch[i]
         #Actually -2 times (6.42) since we are minimizing
         return(logsum+othersum)
+    #End of GarchMaxLike
 
-    #a and b between 0 and 1, c positive
-    garch_bounds = scpo.Bounds([0,0,0],[1,1,np.inf])
-    #Sum of a and b is less than 1
-    garch_linear_constraint = \
-        scpo.LinearConstraint([[1, 1, 0]], \
-              [0], [.99999])
+    #Transform parameters to the form used in GarchMaxLike
+    #This ensures parameters are in bounds 0<a,b<1, 0<c
+    aparam=np.log(initparams[0]/(.999-initparams[0]))
+    bparam=np.log(initparams[1]/(.999-initparams[0]-initparams[1]))
+    cparam=np.log(initparams[2])
+    xinit=[aparam,bparam,cparam]
+    #Run the minimization. Constraints are built-in.
+    results = scpo.minimize(GarchMaxLike,
+                            xinit,
+                            method='CG')
+    aparam,bparam,cparam=results.x
+    a=.999*np.exp(aparam)/(1+np.exp(aparam))
+    b=(.999-a)*np.exp(bparam)/(1+np.exp(bparam))
+    c=np.exp(cparam)
 
-    results = scpo.minimize(GarchMaxLike, \
-        initparams, \
-        method='trust-constr', \
-        jac='2-point', \
-        hess=scpo.SR1(), \
-        bounds=garch_bounds, \
-        constraints=garch_linear_constraint)
-
-    return(results.x)
-#Done with Garch11Fit
+    return([a,b,c])
