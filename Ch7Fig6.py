@@ -106,7 +106,7 @@ dfeps=dfcomb.copy()
 dfeps=dfeps-overallmean
 for it,ticker in enumerate(tickerlist):
     for i in range(len(dfeps)):
-        dfeps[ticker][i]/=stgs[it][i]
+        dfeps[ticker].iloc[i]/=stgs[it][i]
     print(ticker,'Mean:',np.mean(dfeps[ticker]), \
           'Std Dev:',np.std(dfeps[ticker]), \
           'Kurtosis:',spst.kurtosis(dfeps[ticker]))
